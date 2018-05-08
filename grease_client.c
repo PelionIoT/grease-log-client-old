@@ -298,10 +298,13 @@ OriginId __grease_get_default_origin(void) { return (((OriginId) getpid()) | 0x1
 GREASE_DEFAULT_ORIGIN_FUNC
 #endif
 
+const char *_fallbackS = "grease-fallback>> ";
 
 #define GREASE_FALLBACK_OUT(f, s, len) if( f->level & (GREASE_LEVEL_ERROR | GREASE_LEVEL_WARN) ) { \
+   write( STDERR_FILENO, _fallbackS, 18); \
    write( STDERR_FILENO, s, len); \
 } else { \
+   write( STDOUT_FILENO, _fallbackS, 18); \
    write( STDOUT_FILENO, s, len); \
 }
 
