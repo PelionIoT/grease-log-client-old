@@ -241,8 +241,10 @@ int _grease_logToRaw(logMeta *f, const char *s, RawLogLen len, char *tobuf, RawL
 #define _GNU_SOURCE
 #define __USE_GNU
 
+#ifndef GREASE_NO_LOCAL_SYMBOLS
 #include <elf.h>
 #include <dlfcn.h>
+#endif
 #include <link.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -342,7 +344,7 @@ int grease_logToSink(logMeta *f, const char *s, RawLogLen len) {
 
 
 
-
+#ifndef GREASE_NO_LOCAL_SYMBOLS
 static int
 grease_plhdr_callback(struct dl_phdr_info *info, size_t size, void *data)
 {
@@ -376,12 +378,12 @@ grease_plhdr_callback(struct dl_phdr_info *info, size_t size, void *data)
 }
 
 
-
 int check_grease_symbols() {
 	found_module = 0;
 	dl_iterate_phdr(grease_plhdr_callback, NULL);
 	return found_module;
 }
+#endif
 
 int ping_sink() {
 	char temp_buf[GREASE_CLIENT_PING_SIZE];
@@ -568,10 +570,12 @@ int grease_initLogger() {
 			grease_log = local_log;
 			return GREASE_OK;
 		}
+#ifndef GREASE_NO_LOCAL_SYMBOLS
 	} else if(check_grease_symbols()) {
 		_GREASE_DBG_PRINTF("------- Found symbols.\n");
 		grease_log = local_log;
 		return GREASE_OK;
+#endif
 	}
 	// else, try the sink... (since these are all TLS vars, there be a connection per thread)
 	if(!setup_sink_dgram_socket(NULL,0)) {
@@ -585,30 +589,50 @@ int grease_initLogger() {
 }
 
 int grease_fastInitLogger() {
+#ifndef GREASE_NO_LOCAL_SYMBOLS
 	if(check_grease_symbols()) {
 		_GREASE_DBG_PRINTF("------- Found symbols.\n");
 		grease_log = local_log;
 		return GREASE_OK;
 	} else {
-		// TODO setup Sink connection
-//		grease_log = grease_logToSink;
-//		grease_log = NULL;
+#endif		
 		if(!setup_sink_dgram_socket(NULL,SINK_NO_PING)) {
 			grease_log = grease_logToSink;
 		} else {
 			grease_log = NULL;
 			return GREASE_FAILED;
 		}
+#ifndef GREASE_NO_LOCAL_SYMBOLS
 	}
+#endif
 	return GREASE_OK;
 }
 
+int grease_fastInitLoggerToSinkOnly() {
+	// if(check_grease_symbols()) {
+	// 	_GREASE_DBG_PRINTF("------- Found symbols.\n");
+	// 	grease_log = local_log;
+	// 	return GREASE_OK;
+	// } else {
+		if(!setup_sink_dgram_socket(NULL,SINK_NO_PING)) {
+			grease_log = grease_logToSink;
+		} else {
+			grease_log = NULL;
+			return GREASE_FAILED;
+		}
+	// }
+	return GREASE_OK;
+}
+
+
 int grease_fastInitLogger_extended(const char *path) {
+#ifndef GREASE_NO_LOCAL_SYMBOLS
 	if(check_grease_symbols()) {
 		_GREASE_DBG_PRINTF("------- Found symbols.\n");
 		grease_log = local_log;
 		return GREASE_OK;
 	} else {
+#endif
 		// TODO setup Sink connection
 //		grease_log = grease_logToSink;
 //		grease_log = NULL;
@@ -618,7 +642,9 @@ int grease_fastInitLogger_extended(const char *path) {
 			grease_log = NULL;
 			return GREASE_FAILED;
 		}
+#ifndef GREASE_NO_LOCAL_SYMBOLS
 	}
+#endif
 	return GREASE_OK;
 }
 

@@ -21,6 +21,16 @@
 #define THREAD_LOCAL __thread
 
 
+// Compile time defs:
+//
+// If defined, then this client library will not include code to check for 
+// symbols of a local grease logger (typically when using grease-log in the same process)
+// and will always assume that a remote sink is used and if 
+// fails will go to fallback output
+// #define GREASE_NO_LOCAL_SYMBOLS 1 
+// 
+// end compile time defs.
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -227,6 +237,13 @@ extern int grease_initLogger(void);
  * @return GREASE_OK if successful, or GREASE_FAILED if not
  */
 extern int grease_fastInitLogger(void);
+
+/**
+ * This only uses an external sink for the logger. It never looks
+ * for local symbols. This version does not try to ping the sink.
+ * @return GREASE_OK if successful, or GREASE_FAILED if not
+ */
+extern int grease_fastInitLoggerToSinkOnly(void);
 
 /**
  * sets up the logger if using a local (in process) Grease server.

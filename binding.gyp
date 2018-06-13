@@ -121,11 +121,11 @@
       'configurations': {
         'Debug': {
           "ldflags" : ["-ldl"],
-          "cflags" : ["-ldl","-DGLOG_DEFAULT_TAG=GREASE_TAG_ECHO"]
+          "cflags" : ["-ldl","-DGLOG_DEFAULT_TAG=GREASE_TAG_ECHO","-DGREASE_NO_LOCAL_SYMBOLS=1"]
         },
         'Release': {
           "ldflags" : ["-ldl"],
-          "cflags" : ["-ldl","-DGLOG_DEFAULT_TAG=GREASE_TAG_ECHO"]        
+          "cflags" : ["-ldl","-DGLOG_DEFAULT_TAG=GREASE_TAG_ECHO","-DGREASE_NO_LOCAL_SYMBOLS=1"]        
           }
       }
       }  ] ]
@@ -194,6 +194,7 @@
           "-std=c++11",
           "-D_POSIX_C_SOURCE=200809L",
           "-D_GNU_SOURCE",
+          "-DGREASE_NO_LOCAL_SYMBOLS=1",
           "-DERRCMN_DEBUG_BUILD=1",
 #          "-DLOGGER_HEAVY_DEBUG=1",
           "-fno-omit-frame-pointer",  # required by tcmalloc, but not a default on x86_64
@@ -217,6 +218,7 @@
           "-std=c++11",
           "-D_POSIX_C_SOURCE=200809L",
           "-D_GNU_SOURCE",
+          "-DGREASE_NO_LOCAL_SYMBOLS=1",
           "-fno-omit-frame-pointer",  # required by tcmalloc, but not a default on x86_64
 ## not needed since we explicitly call tcmalloc
 ##          "-fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free"

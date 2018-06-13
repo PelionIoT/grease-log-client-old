@@ -110,9 +110,30 @@ NAN_METHOD(GreaseLoggerClient::SetGlobalOpts) {
 NAN_METHOD(GreaseLoggerClient::Start) {
 	GreaseLoggerClient *l = GreaseLoggerClient::setupClass();
 
-	int r = grease_initLogger();
-	if(r != GREASE_OK) {
-		l->sinkFailureNeedsCall = true;
+	// yes, for compatibility reasons with the 
+	// old 'grease-log', we only look at the second parameter
+	bool ready = false;
+	int r;
+	if(info.Length() > 1 && info[1]->IsObject()) {
+		Local<Object> jsObj = info[4]->ToObject();
+		Local<Value> val; Nan::MaybeLocal<Value> Mval = Nan::Get(jsObj,Nan::New("socket_only").ToLocalChecked());
+		if(Mval.ToLocal<Value>(&val)) {
+			if(val->IsBoolean() && val->IsTrue()) {
+				ready = true;
+				// call init for only using a remote sink
+				int r = grease_fastInitLoggerToSinkOnly();
+				if(r != GREASE_OK) {
+					l->sinkFailureNeedsCall = true;
+				}
+			}
+		}
+	}
+
+	if (!ready) {
+		r = grease_initLogger();
+		if(r != GREASE_OK) {
+			l->sinkFailureNeedsCall = true;
+		}
 	}
 	l->greaseConnectMethod = grease_getConnectivityMethod();
 	info.GetReturnValue().Set(Nan::New((int32_t) r));
