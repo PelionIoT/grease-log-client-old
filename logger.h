@@ -8,6 +8,12 @@
 #ifndef GreaseLogger_H_
 #define GreaseLogger_H_
 
+// snprintf() is used to allow the greaseLog caller 
+// to configure customized output. This means this warning
+// will happen. We do this to override any -Werror=format-security
+// setting by the build system.
+#pragma GCC diagnostic warning "-Wformat-security"
+
 #include <v8.h>
 #include <node.h>
 #include <uv.h>
